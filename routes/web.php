@@ -11,52 +11,17 @@
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
-
-//Route::get('/', function () {
-//    return view('welcome');
-//});
-
-Route::get('/api', function () {
-    $sprints = \App\Sprint::all()->where('success', '=', '0');
-    $tasks = \App\Task::all();
-
-    return response()->json([
-        'sprints' => $sprints,
-        'tasks' => $tasks,
-    ]);
-});
-
-//Route::get('/addTask', function () {
-//    return view('welcome');
-//});
-Route::post('/api/tasks', function (\Illuminate\Http\Request $request) {
-    return request()->all();
-});
-
-//Route::get('/addSprint', function () {
-//    return view('welcome');
-//});
-Route::post('/api/sprints', function (\Illuminate\Http\Request $request) {
-    $week = $request->Week;
-    $year = $request->Year;
-    $sprintId = substr($year, '2') . '-' . $week;
-    $sprint = \App\Sprint::create([
-        'sprintId' => $sprintId,
-        'week' => $week,
-        'year' => $year
-    ]);
-    return response()->json([
-       'sprintId' => $sprint->sprintId
-    ]);
-});
 
 
-Route::post('/endTask', function () {
-    return view('welcome');
-});
+Route::get('/api', 'ApiController@index');
+
+Route::post('/api/tasks', 'ApiController@tasks');
+
+Route::post('/api/sprints', 'ApiController@sprints');
+
+Route::post('/api/tasks/close', 'ApiController@closeTasks');
+
+Route::post('/api/sprints/close', 'ApiController@closeSprint');
 
 
 
