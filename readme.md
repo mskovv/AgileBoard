@@ -7,6 +7,9 @@ This project is a test case for Artsofte him realised API for AgileBoard and imp
 4) closeTask() - post close task of JSON request ({taskId : TASK-5}) response : success
 5) closeSprint() - if sprint have not succsesses tasks - response : error message; else responce : succsess
 
+## New function
+Now we can use tasker(cron) for everyday update old sprints and push him tasks to active now sprint!)
+For this use link /public/api/check 
 ## Laravel Sponsors
 
 We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
