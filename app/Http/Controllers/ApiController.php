@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Sprint;
 use App\Task;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class ApiController extends Controller
 {
@@ -94,5 +96,56 @@ class ApiController extends Controller
         return response()->json([
             "sprintId" => $this->request->sprintId
         ]);
+    }
+
+    public function checkSprintForClosed(){
+        $nowDate = Carbon::now()->startOfWeek()->format('Y-m-d');//Получаем начало текущей недели, чтобы сравнивать с этим значением
+        $yearNow = Carbon::now()->year;
+        $weekNow = Carbon::now()->week;
+
+//        $nowDate = Carbon::now()->addWeek(2)->format('Y-m-d');
+//        $weekNow = Carbon::now()->addWeek(2)->week;
+
+        $sprints = DB::table('sprints')//Получаем все открытые спринты, которые созданы до начала текущей недели
+            ->where([
+                ['year','<', $yearNow],
+                ['week', '>', $weekNow],['success', '=', '0']
+            ])->orWhere([
+                ['year','=', $yearNow],
+                ['week', '<', $weekNow],['success', '=', '0']
+            ])->orWhere([
+                ['year','<', $yearNow],
+                ['week', '<', $weekNow],['success', '=', '0']
+            ])
+            ->where('success', '=', '0')
+            ->get();
+
+
+        $sprintAfter = Sprint::where('year','>=', $yearNow)//Получаем все открытые спринты, которые идут сейчас или следуют после
+            ->where('week', '>=', $weekNow)
+            ->where('success', '=', '0')->first();
+
+        $tasks = [];
+
+        foreach ($sprints as $sprint){//В найденых ранее спринтах получаем все открытые таски
+            $tasks += Task::all()
+                ->where('sprintId', '=', $sprint->sprintId)
+                ->where('success', '=', '0')
+                ->all();//Шарим в массив тассков их
+        }
+
+        foreach ($tasks as $task){
+            if(Task::where('taskId', $task['taskId'])->update(['sprintId'=> $sprintAfter->sprintId]))
+            {
+                foreach ($sprints as $spr){
+                    if ($spr->created_at < $nowDate){
+                        Sprint::where('sprintId',$spr->sprintId)->update([
+                            'success' => 1
+                        ]);
+                    }
+
+                }
+            }
+        }
     }
 }

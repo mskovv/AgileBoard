@@ -15,6 +15,8 @@
 
 Route::get('/api', 'ApiController@index');
 
+Route::get('/api/check', 'ApiController@checkSprintForClosed');
+
 Route::post('/api/tasks', 'ApiController@tasks');
 
 Route::post('/api/sprints', 'ApiController@sprints');
